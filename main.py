@@ -44,8 +44,9 @@ class SpecialResolver:
                         d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], answer['TTL'], dnslib.QTYPE[answer['type']], answer['data'])))
 
                     success = True
-                except Exception as e:
-                    print('[{0}] - An error occured! Details: {1}'.format(k, e))
+                    print('[{0}] - DNS query successful for \'{1}\'!'.format(k, q_name))
+                except Exception:
+                    print('[{0}] - An error occured!'.format(k))
 
                 if success:
                     break
