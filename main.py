@@ -16,7 +16,7 @@ RESOLVERS = {
 LOCAL_ADDR = 'localhost'
 LOCAL_PORT = 53
 
-FALLBACK_DNS_ADDR = '1.1.1.1'
+FALLBACK_DNS_ADDR = '8.8.8.8'
 FALLBACK_DNS_PORT = 53
 
 class SpecialResolver:
@@ -31,10 +31,13 @@ class SpecialResolver:
             custom_ns = json.load(f)
 
         if q_name in custom_ns:
+            print('Using custom nameserver for query \'{0}\'!'.format(q_name))
             for answer in custom_ns[q_name]['answers']:
-                if answer['type'] != q_type:
+                if dnslib.QTYPE[answer['type']] != q_type:
                     continue
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], answer['TTL'], dnslib.QTYPE[answer['type']], answer['data'])))
+            
+            return d
         else:
             success = False
             for k, mod in RESOLVERS.items():
@@ -46,18 +49,21 @@ class SpecialResolver:
                     success = True
                     print('[{0}] - DNS query successful for \'{1}\'!'.format(k, q_name))
                 except Exception:
-                    print('[{0}] - An error occured!'.format(k))
+                    print('[{0}] - An error occured for \'{1}\'!'.format(k, q_name))
 
                 if success:
                     break
 
-            if not success:
+            if success:
+                return d
+            else:
+                print('Using fallback DNS for query \'{0}\'!'.format(q_name))
                 a = dnslib.DNSRecord.parse(dnslib.DNSRecord.question(q_name).send(FALLBACK_DNS_ADDR, FALLBACK_DNS_PORT))
                 for rr in a.rr:
                     d.add_answer(rr)
 
+                return d
 
-        return d
 
 r = SpecialResolver()
 s = server.DNSServer(r, port=LOCAL_PORT, address=LOCAL_ADDR)
@@ -66,6 +72,7 @@ s.start_thread()
 
 print('Starting DNS Proxy, Press Ctrl-C to exit.')
 while True:
+    time.sleep(500)
     now = round(time.time())
     with open('custom-ns.json', 'r') as f:
         custom_ns = json.load(f)
@@ -101,7 +108,7 @@ while True:
 
                 success = True
             except Exception as e:
-                print('[{0}] - An error occured! Details: {1}'.format(k, e))
+                print('[{0}] - An error occured for \'{1}\'!'.format(k, domain))
 
             if success:
                 break
