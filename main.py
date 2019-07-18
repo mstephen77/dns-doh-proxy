@@ -72,7 +72,7 @@ s.start_thread()
 
 print('Starting DNS Proxy, Press Ctrl-C to exit.')
 while True:
-    time.sleep(500)
+    time.sleep(50)
     now = round(time.time())
     with open('custom-ns.json', 'r') as f:
         custom_ns = json.load(f)
