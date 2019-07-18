@@ -1,0 +1,5 @@
+.vscode/
+__pycache__/
+venv/
+venv2/
+custom-ns.json

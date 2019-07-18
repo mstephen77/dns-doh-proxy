@@ -1,0 +1,38 @@
+{
+    "dns.google.": {
+        "resolver": true,
+        "answers": []
+    },
+    "dns.quad9.net.": {
+        "resolver": true,
+        "answers": []
+    },
+    "cloudflare-dns.com.": {
+        "resolver": true,
+        "answers": [
+            {
+                "name": "cloudflare-dns.com.",
+                "type": 1,
+                "TTL": 206,
+                "data": "104.16.248.249"
+            },
+            {
+                "name": "cloudflare-dns.com.",
+                "type": 1,
+                "TTL": 206,
+                "data": "104.16.249.249"
+            }
+        ]
+    },
+    "icecutethings.dev.": {
+        "resolver": false,
+        "answers": [
+            {
+                "name": "icecutethings.dev.",
+                "TTL": 3600,
+                "type": 1,
+                "data": "127.0.0.1"
+            }
+        ]
+    }
+}
