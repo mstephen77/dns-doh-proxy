@@ -9,7 +9,7 @@ from dnslib import server
 
 RESOLVERS = {
     'google': google,
-    'cloudflare': cf
+    'cloudflare': cf,
     'quad9': quad9,
 }
 
