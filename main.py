@@ -86,7 +86,9 @@ while True:
         for k, mod in RESOLVERS.items():
             update_r = False
             try:
-                answers = mod.resolve(domain, 'A')
+                answers_a = mod.resolve(domain, 'A')
+                answers_aaaa = mod.resolve(domain, 'AAAA')
+                answers = answers_aaaa + answers_a
                 if len(answers) != len(data['answers']):
                     update_r = True
 
