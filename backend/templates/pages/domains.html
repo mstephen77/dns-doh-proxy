@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h5>Custom Domains</h5>
+        </div>
+    </div>
+    <div class="row mt-2 mb-3">
+        <div class="col-12">
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><strong>Management</strong></li>
+                    <li class="breadcrumb-item active">Custom Domains</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <button class="btn btn-primary w-100 mb-2"><i class="fas fa-plus mr-2"></i>Add custom domain</button>
+                    <hr />
+                    <div class="container-fluid">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Domain</th>
+                                    <th>Answer</th>
+                                    <th data-searchable="false" data-sortable="false" class="text-center">Status</th>
+                                    <th data-searchable="false" data-sortable="false" class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for k, ns in data['name_servers'] %}
+                                    <tr>
+                                        <td>{{ k }}</td>
+                                        <td>
+                                            {% for answer in ns['answers'] %}
+                                                {% if answer['type'] == 1 or answer['type'] == 28 %}
+                                                    <div>{{ answer['data'] }}</div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% if ns['resolver'] %}
+                                            <div>
+                                                <i class="fas fa-sync text-primary" title="This record is used as a resolver."></i>
+                                            </div>
+                                            {% endif %}
+                                            {% if ns['locked'] %}
+                                            <div>
+                                                <i class="fas fa-lock text-danger" title="This record is locked and cannot be modified."></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <i class="fas fa-check text-success"></i>
+                                            </div>
+                                        </td>
+                                        <td class="text-right">
+                                            {% if not ns['resolver'] and ns['locked'] %}
+                                            <div>
+                                                <a href="#" class="btn btn-danger"><i class="fas fa-lock-open mr-1"></i> Unlock</a>
+                                            </div>
+                                            {% endif %}
+                                            {% if not ns['locked'] %}
+                                            <div>
+                                                <a href="#" class="btn btn-primary"><i class="fas fa-edit mr-1"></i> Edit</a>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block body_items %}
+{{ super() }}
+<script>
+    $(() => {
+        $('table').DataTable();
+    });
+</script>
+{% endblock %}

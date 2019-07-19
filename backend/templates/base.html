@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>
+        {% block title %}
+        Cels DNS
+        {% endblock %}
+    </title>
+    {% block head_items %}
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" defer="defer">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    {% endblock %}
+</head>
+
+<body class="app">
+    <div class="sidebar-fix d-lg-none d-print-none"></div>
+    <div class="sidebar">
+        <div class="sidebar-inner">
+            <div class="sidebar-logo">
+                <a class="sidebar-link" href="/">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <div class="logo d-flex justify-content-center align-items-center">
+                                <img src="/static/logo.png" alt="CD" width="50%" />
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="m-0 logo-text">Cels DNS</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <ul class="sidebar-menu overflow-auto position-relative pt-1">
+                <li class="nav-item">
+                    <a class="sidebar-link" href="/">
+                        <span class="icon-holder"><i class="c-blue-500 fas fa-home"></i></span> 
+                        <span class="title">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="dropdown-toggle" href="javascript:;">
+                        <span class="icon-holder"><i class="fas fa-tasks c-red-500"></i></span> 
+                        <span class="title">Management</span> 
+                        <span class="arrow"><i class="fas fa-angle-right"></i></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="sidebar-link" href="/resolvers">
+                                <span class="icon-holder"><i class="fas fa-sync"></i></span> DNS Resolvers
+                            </a>
+                        </li>
+                        <li>
+                            <a class="sidebar-link" href="/domains">
+                                <span class="icon-holder"><i class="fas fa-list-alt"></i></span> Custom Domains
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="page-container">
+        <div class="header navbar">
+            <div class="header-container">
+                <ul class="nav-left">
+                    <li>
+                        <a id="sidebar-toggle" class="sidebar-toggle" href="javascript:void(0);">
+                            <i class="fas fa-bars"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <main class="main-content bg-light">
+            {% block content %}
+            {% endblock %}
+        </main>
+        <footer class="c-grey-600 d-flex align-items-center" style="height: 61px;">
+            <span class="ml-3">Copyright &copy; Cels. All rights reserved.</span>
+        </footer>
+    </div>
+    {% block body_items %}
+        <script type="text/javascript" src="/static/js/vendor.js"></script>
+        <script type="text/javascript" src="/static/js/bundle.js"></script>
+        <script>
+            window.jQuery = window.$;
+        </script>
+        <script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="/static/js/dataTables.bootstrap4-cels.min.js"></script>
+    {% endblock %}
+</body>
+
+</html>

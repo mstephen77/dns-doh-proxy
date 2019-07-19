@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h5>DNS Resolvers (for DNS over HTTPS)</h5>
+        </div>
+    </div>
+    <div class="row mt-2 mb-3">
+        <div class="col-12">
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><strong>Management</strong></li>
+                    <li class="breadcrumb-item active">DNS Resolvers</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Priority</th>
+                                    <th>Identifier</th>
+                                    <th>Domain</th>
+                                    <th>Endpoint</th>
+                                    <th data-searchable="false" data-sortable="false" class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for k, mod in data['resolvers'].items() %}
+                                    <tr>
+                                        <td>{{ data['priorities'][k] }}</td>
+                                        <td>
+                                            <i class="fas fa-question mr-2 text-muted" title="Status: Unknown"></i>
+                                            {{ k }}
+                                        </td>
+                                        <td><a href="http://{{ mod.DOMAIN }}">{{ mod.DOMAIN }}</a></td>
+                                        <td><a href="{{ mod.ENDPOINT }}">{{ mod.ENDPOINT }}</a></td>
+                                        <td class="text-right">
+                                            <button class="btn btn-primary btn-sm check-resolver"><i class="fas fa-sync"></i></button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block body_items %}
+{{ super() }}
+<script>
+    $(() => {
+        $('table').DataTable();
+    });
+</script>
+{% endblock %}
