@@ -15,7 +15,7 @@ class SpecialResolver:
         q_name = str(q.qname)
         custom_ns = {}
 
-        with open('custom-ns.json', 'r') as f:
+        with open(settings.NAMESERVER_DATA, 'r') as f:
             custom_ns = json.load(f)
 
         if q_name in custom_ns:
@@ -25,6 +25,7 @@ class SpecialResolver:
                     continue
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], answer['TTL'], dnslib.QTYPE[answer['type']], answer['data'])))
             
+            settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
             return d
         else:
             success = False
@@ -43,6 +44,7 @@ class SpecialResolver:
                     break
 
             if success:
+                settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
                 return d
             else:
                 print('Using fallback DNS for query \'{0}\'!'.format(q_name))
@@ -55,7 +57,7 @@ class SpecialResolver:
 
 def update_resolver_ns():
     while True:
-        with open('custom-ns.json', 'r') as f:
+        with open(settings.NAMESERVER_DATA, 'r') as f:
             custom_ns = json.load(f)
 
         updates = False
@@ -90,19 +92,20 @@ def update_resolver_ns():
                         print('[Scheduler] - updated DNS records for resolver {0}'.format(domain))
 
                     success = True
-                except Exception as e:
+                except Exception:
                     print('[{0}] - An error occured for \'{1}\'!'.format(k, domain))
 
                 if success:
                     break
                 
         if updates:
-            with open('custom-ns.json', 'w') as f:
+            with open(settings.NAMESERVER_DATA, 'w') as f:
                 json.dump(custom_ns, f)
 
         time.sleep(300) # default ttl value for resolvers (5 min)
 
 print('Initializing System, Press Ctrl-C to exit.')
+settings.START_TIME = round(time.time(), 0)
 
 print('Starting DNS Proxy...')
 r = SpecialResolver()

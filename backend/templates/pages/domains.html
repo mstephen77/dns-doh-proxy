@@ -21,7 +21,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <button class="btn btn-primary w-100 mb-2"><i class="fas fa-plus mr-2"></i>Add custom domain</button>
+                    <button class="btn btn-primary w-100 mb-2" data-toggle="modal" data-target="#domain-modal"><i class="fas fa-plus mr-2"></i>Add custom domain</button>
                     <hr />
                     <div class="container-fluid">
                         <table class="table table-hover">
@@ -30,44 +30,58 @@
                                     <th>Domain</th>
                                     <th>Answer</th>
                                     <th data-searchable="false" data-sortable="false" class="text-center">Status</th>
-                                    <th data-searchable="false" data-sortable="false" class="text-right">Actions</th>
+                                    <th data-searchable="false" data-sortable="false" class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for k, ns in data['name_servers'] %}
                                     <tr>
-                                        <td>{{ k }}</td>
-                                        <td>
+                                        <td class="align-middle">{{ k }}</td>
+                                        <td class="align-middle">
                                             {% for answer in ns['answers'] %}
                                                 {% if answer['type'] == 1 or answer['type'] == 28 %}
                                                     <div>{{ answer['data'] }}</div>
                                                 {% endif %}
                                             {% endfor %}
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center align-middle">
                                             {% if ns['resolver'] %}
-                                            <div>
-                                                <i class="fas fa-sync text-primary" title="This record is used as a resolver."></i>
+                                            <div class="mb-1">
+                                                <i class="fas fa-sync text-primary" data-toggle="tooltip" data-placement="right" title="This record is used as a resolver."></i>
                                             </div>
                                             {% endif %}
                                             {% if ns['locked'] %}
-                                            <div>
-                                                <i class="fas fa-lock text-danger" title="This record is locked and cannot be modified."></i>
+                                            <div class="mb-1">
+                                                <i class="fas fa-lock text-success" data-toggle="tooltip" data-placement="right" title="This record is locked and cannot be modified."></i>
                                             </div>
                                             {% endif %}
                                             <div>
-                                                <i class="fas fa-check text-success"></i>
+                                                <i class="fas fa-check text-success" data-toggle="tooltip" data-placement="right" title="This record is enabled and active."></i>
                                             </div>
                                         </td>
-                                        <td class="text-right">
+                                        <td class="text-center align-middle">
                                             {% if not ns['resolver'] and ns['locked'] %}
                                             <div>
-                                                <a href="#" class="btn btn-danger"><i class="fas fa-lock-open mr-1"></i> Unlock</a>
+                                                <a href="javascript:;" class="btn btn-danger">
+                                                    <i class="fas fa-lock-open"></i> Unlock
+                                                </a>
                                             </div>
                                             {% endif %}
                                             {% if not ns['locked'] %}
+                                            <div class="mb-1">
+                                                <a href="javascript:;" class="btn btn-success">
+                                                    <i class="fas fa-lock"></i> Lock
+                                                </a>
+                                            </div>
+                                            <div class="mb-1">
+                                                <a href="javascript:;" class="btn btn-primary edit-button" data-toggle="modal" data-target="#domain-modal" data-domain="{{ k }}">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                            </div>
                                             <div>
-                                                <a href="#" class="btn btn-primary"><i class="fas fa-edit mr-1"></i> Edit</a>
+                                                <a href="javascript:;" class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </a>
                                             </div>
                                             {% endif %}
                                         </td>
@@ -81,12 +95,149 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="domain-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Domain Record</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST">
+                <input type="hidden" name="create_new">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="domain" class="col-form-label">Domain:</label>
+                        <input type="text" class="form-control" id="domain" name="domain" required placeholder="Domain, eg: example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Address(es):</label>
+                        <div class="input-group mb-1 address-repeat">
+                            <input type="hidden" class="input-domain-record" name="records[]">
+                            <input type="text" class="form-control" placeholder="IP Address">
+                            <select class="form-control" required>
+                                <option value="1" selected>A (IPv4)</option>
+                                <option value="28">AAAA (IPv6)</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-danger remove-button" type="button">&times;</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary d-block w-100 mt-2" id="add-address" type="button">Add address</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success as-submit">Save record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% block body_items %}
 {{ super() }}
 <script>
     $(() => {
         $('table').DataTable();
+
+        let domain_modal = $('#domain-modal');
+        let draggable = domain_modal.find('.modal-content').draggable(domain_modal.find('.modal-header'));
+
+        let domain_form = domain_modal.find('form');
+        let domain_input = domain_form.find('input[name=domain]');
+        let is_new_input = domain_form.find('input[name=create_new]');
+        let address_template = domain_form.find('.address-repeat').detach();
+        let add_address_button = domain_form.find('#add-address');
+        let submit_button = domain_form.find('button.as-submit');
+        add_address_button.click(e => {
+            e.preventDefault();
+            
+            let addr = address_template.clone();
+            addr.insertBefore(add_address_button);
+
+            let addr_ip_input = addr.find('input.form-control');
+            let addr_type_select = addr.find('select');
+
+            let on_input = (e) => {
+                addr.find('input.input-domain-record').val(`${addr_ip_input.val()},${addr_type_select.val()}`);
+            };
+
+            addr_ip_input.on('input', on_input);
+            addr_type_select.on('input', on_input);
+            addr.find('button.remove-button').click(e => {
+                if (addr_ip_input.val().trim() !== '') {
+                    window.confirm('This record is not empty. Are you sure to delete this record?') && addr.remove();
+                }
+                else {
+                    addr.remove();
+                }
+            });
+        });
+
+        domain_modal.on('show.bs.modal', e => {
+            draggable.reset();
+
+            domain_form.find('.address-repeat').remove();
+            domain_form[0].reset();
+
+            let button = $(e.relatedTarget);
+            if (button.is('.edit-button')) {
+                is_new_input.val(0);
+                let domain = button.data('domain');
+                domain_input.val(domain);
+                $.ajax({
+                    'url': `/api/domains/${domain}`,
+                    'method': 'GET',
+                    'success': data => {
+                        if (!('answers' in data)) return;
+
+                        for (let answer of data['answers']) {
+                            let addr = address_template.clone();
+                            addr.insertBefore(add_address_button);
+
+                            let addr_ip_input = addr.find('input.form-control');
+                            let addr_type_select = addr.find('select');
+
+                            let on_input = (e) => {
+                                addr.find('input.input-domain-record').val(`${addr_ip_input.val()},${addr_type_select.val()}`);
+                            };
+
+                            addr_ip_input.val(answer['data']).on('input', on_input);
+                            addr_type_select.val(answer['type']).on('input', on_input);
+                            addr.find('button.remove-button').click(e => {
+                                if (addr_ip_input.val().trim() !== '') {
+                                    window.confirm('This record is not empty. Are you sure to delete this record?') && addr.remove();
+                                }
+                                else {
+                                    addr.remove();
+                                }
+                            });
+
+                            on_input();
+                        }
+                    },
+                    'error': e => {
+                        window.alert(`An internal server error occured!\nFailed to get DNS record for domain '${domain}'!`);
+                    }
+                });
+            }
+            else {
+                is_new_input.val(1);
+            }
+        });
+
+        submit_button.click(e => {
+            let domain = domain_input.val().trim();
+            if (domain.endsWith('.')) {
+                domain_input.val(domain.substring(0, domain.length - 1));
+            }
+
+            //validation;
+
+            domain_form.submit();
+        });
     });
 </script>
 {% endblock %}

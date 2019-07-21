@@ -7,7 +7,7 @@ def resolve(name, type):
     r = requests.get(ENDPOINT, params={
             'type': type,
             'name': name,
-            'cd': 'true'
+            'cd': 'false'
         })
     r.raise_for_status()
     query = r.json()

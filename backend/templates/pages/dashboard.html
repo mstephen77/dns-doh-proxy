@@ -10,8 +10,12 @@
                 <div class="card-body">
                     <h5 class="mb-2">Server Overview</h5>
                     <hr />
-                    <div>System uptime: 9 hours and 33 minutes</div>
-                    <div>DNS responded: 354</div>
+                    <div>
+                        System uptime: 
+                        {% if data['hours'] > 0 %} {{ data['hours'] }} hour{% if data['hours'] > 1 %}s{% endif %} and {% endif %}
+                        {{ data['minutes'] }} minute{% if data['minutes'] > 1 %}s{% endif %}
+                    </div>
+                    <div>DNS queries answered: {{ data['dns_answered'] }}</div>
                 </div>
             </div>
         </div>

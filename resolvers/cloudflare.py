@@ -8,7 +8,7 @@ def resolve(name, type):
             'type': type,
             'name': name,
             'ct': 'application/dns-json',
-            'cd': 'true'
+            'cd': 'false'
         })
     r.raise_for_status()
     query = r.json()

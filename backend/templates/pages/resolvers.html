@@ -25,25 +25,30 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Priority</th>
+                                    <th>
+                                        Priority
+                                        <sup data-toggle="tooltip" data-placement="right" title="Priority determines which resolver should try resolving DNS query first.">
+                                            <i class="fas fa-question"></i>
+                                        </sup>
+                                    </th>
                                     <th>Identifier</th>
                                     <th>Domain</th>
                                     <th>Endpoint</th>
-                                    <th data-searchable="false" data-sortable="false" class="text-right">Actions</th>
+                                    <th data-searchable="false" data-sortable="false" class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for k, mod in data['resolvers'].items() %}
                                     <tr>
-                                        <td>{{ data['priorities'][k] }}</td>
-                                        <td>
-                                            <i class="fas fa-question mr-2 text-muted" title="Status: Unknown"></i>
+                                        <td class="align-middle">{{ data['priorities'][k] }}</td>
+                                        <td class="align-middle">
+                                            <i class="fas fa-question mr-2 text-muted" data-toggle="tooltip" data-placement="right" title="The resolver status is unknown."></i>
                                             {{ k }}
                                         </td>
-                                        <td><a href="http://{{ mod.DOMAIN }}">{{ mod.DOMAIN }}</a></td>
-                                        <td><a href="{{ mod.ENDPOINT }}">{{ mod.ENDPOINT }}</a></td>
-                                        <td class="text-right">
-                                            <button class="btn btn-primary btn-sm check-resolver"><i class="fas fa-sync"></i></button>
+                                        <td class="align-middle"><a href="http://{{ mod.DOMAIN }}">{{ mod.DOMAIN }}</a></td>
+                                        <td class="align-middle"><a href="{{ mod.ENDPOINT }}">{{ mod.ENDPOINT }}</a></td>
+                                        <td class="text-center align-middle">
+                                            <button class="btn btn-primary check-resolver"><i class="fas fa-sync"></i> Check</button>
                                         </td>
                                     </tr>
                                 {% endfor %}
