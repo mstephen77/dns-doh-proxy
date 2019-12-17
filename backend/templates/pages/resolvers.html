@@ -25,29 +25,24 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>
-                                        Priority
-                                        <sup data-toggle="tooltip" data-placement="right" title="Priority determines which resolver should try resolving DNS query first.">
-                                            <i class="fas fa-question"></i>
-                                        </sup>
-                                    </th>
-                                    <th>Identifier</th>
-                                    <th>Domain</th>
-                                    <th>Endpoint</th>
-                                    <th data-searchable="false" data-sortable="false" class="text-center">Actions</th>
+                                    <th class="align-middle">Identifier</th>
+                                    <th class="align-middle">Domain</th>
+                                    <th class="align-middle">Endpoint</th>
+                                    <th class="align-middle text-center">#Queries</th>
+                                    <th data-searchable="false" data-sortable="false" class="align-middle text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for k, mod in data['resolvers'].items() %}
+                                {% for res in data['resolvers'] %}
                                     <tr>
-                                        <td class="align-middle">{{ data['priorities'][k] }}</td>
                                         <td class="align-middle">
                                             <i class="fas fa-question mr-2 text-muted" data-toggle="tooltip" data-placement="right" title="The resolver status is unknown."></i>
-                                            {{ k }}
+                                            {{ res['name'] }}
                                         </td>
-                                        <td class="align-middle"><a href="http://{{ mod.DOMAIN }}">{{ mod.DOMAIN }}</a></td>
-                                        <td class="align-middle"><a href="{{ mod.ENDPOINT }}">{{ mod.ENDPOINT }}</a></td>
-                                        <td class="text-center align-middle">
+                                        <td class="align-middle"><a href="http://{{ res['mod'].DOMAIN }}">{{ res['mod'].DOMAIN }}</a></td>
+                                        <td class="align-middle"><a href="{{ res['mod'].ENDPOINT }}">{{ res['mod'].ENDPOINT }}</a></td>
+                                        <td class="align-middle text-center">{{ res['count'] }}</td>
+                                        <td class="align-middle text-right">
                                             <button class="btn btn-primary check-resolver"><i class="fas fa-sync"></i> Check</button>
                                         </td>
                                     </tr>

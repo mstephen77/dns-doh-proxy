@@ -1,7 +1,7 @@
 import requests
 
-DOMAIN = 'dns10.quad9.net'
-ENDPOINT = 'https://dns10.quad9.net:5053/dns-query'
+DOMAIN = 'doh.dns.sb'
+ENDPOINT = 'https://doh.dns.sb/dns-query'
 
 def resolve(name, type):
     r = requests.get(ENDPOINT, params={

@@ -1,6 +1,6 @@
 .vscode/
 venv/
-custom-ns.json
+custom-names.json
 *.bat
 
 *.pyc

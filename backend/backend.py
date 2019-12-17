@@ -6,6 +6,7 @@ from dnslib import QTYPE
 from flask import Flask, abort, session, render_template, request, jsonify
 
 app = Flask(__name__)
+server = None
 
 def create_custom_ns_entry(domain, records):
     answers = []
@@ -51,21 +52,14 @@ def view_dashboard():
     })
 @app.route('/resolvers')
 def view_resolvers():
-    resolvers = settings.RESOLVERS
-    priorities = {}
-    p = 0
-    for k, _ in resolvers.items():
-        p = p + 1
-        priorities[k] = p
-
+    global server
     return render_template('pages/resolvers.html', data={
-        'resolvers': resolvers,
-        'priorities': priorities
+        'resolvers': server.resolvers,
     })
 @app.route('/domains', methods=['GET', 'POST'])
 def view_domains():
     if request.method == 'POST':
-        with open(settings.NAMESERVER_DATA, 'r') as f:
+        with open(settings.NAMES_DATA, 'r') as f:
             custom_ns = json.load(f)
         
         create_new = request.form.get('create_new')
@@ -78,12 +72,12 @@ def view_domains():
             if (create_new and domain not in custom_ns) or (not create_new and domain in custom_ns):
                 custom_ns[domain] = ns_entry
 
-                print('{0} custom domain \'{1}\'!'.format((create_new and 'Adding' or 'Updating'), domain))
+                print('[Backend]: {0} custom domain \'{1}\'!'.format((create_new and 'Adding' or 'Updating'), domain))
 
-        with open(settings.NAMESERVER_DATA, 'w') as f:
+        with open(settings.NAMES_DATA, 'w') as f:
             json.dump(custom_ns, f)
 
-    with open(settings.NAMESERVER_DATA, 'r') as f:
+    with open(settings.NAMES_DATA, 'r') as f:
         custom_ns = json.load(f)
     
     return render_template('pages/domains.html', data={
@@ -91,7 +85,7 @@ def view_domains():
     })
 @app.route('/api/domains/<domain>')
 def api_domains_domain(domain):
-    with open(settings.NAMESERVER_DATA, 'r') as f:
+    with open(settings.NAMES_DATA, 'r') as f:
         custom_ns = json.load(f)
 
     if domain not in custom_ns and (domain + '.') not in custom_ns:
@@ -102,5 +96,7 @@ def api_domains_domain(domain):
 
     return jsonify(custom_ns[domain])
 
-def start(host='127.0.0.1', port=5000):
+def start(_server, host='127.0.0.1', port=5000):
+    global server
+    server = _server
     app.run(host=host, port=port)

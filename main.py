@@ -7,20 +7,36 @@ import threading
 import settings
 from dnslib import server
 
-class SpecialResolver:
+class CustomDNSServer:
+    def __init__(self):
+        self.resolvers = []
+
+        for k, mod in settings.RESOLVERS.items():
+            print('[DNS Server]: adding resolver {0}::{1}'.format(k, mod.DOMAIN))
+            self.resolvers.append({
+                'name': k,
+                'mod': mod,
+                'count': 0,
+            })
+
+    def rr_resolver(self):
+        self.resolvers.sort(key=lambda x: x['count'])
+        self.resolvers[0]['count'] = self.resolvers[0]['count'] + 1
+        return self.resolvers[0]
+        
     def resolve(self, request, handler):
         d = request.reply()
         q = request.get_q()
         q_type = str(dnslib.QTYPE[q.qtype])
         q_name = str(q.qname)
-        custom_ns = {}
+        custom_names = {}
 
-        with open(settings.NAMESERVER_DATA, 'r') as f:
-            custom_ns = json.load(f)
+        with open(settings.NAMES_DATA, 'r') as f:
+            custom_names = json.load(f)
 
-        if q_name in custom_ns:
+        if q_name in custom_names:
             print('Using custom nameserver for query \'{0}\'!'.format(q_name))
-            for answer in custom_ns[q_name]['answers']:
+            for answer in custom_names[q_name]['answers']:
                 if dnslib.QTYPE[answer['type']] != q_type:
                     continue
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], answer['TTL'], dnslib.QTYPE[answer['type']], answer['data'])))
@@ -29,16 +45,17 @@ class SpecialResolver:
             return d
         else:
             success = False
-            for k, mod in settings.RESOLVERS.items():
+            for i in range(len(self.resolvers)):
+                resolver = self.rr_resolver()
                 try:
-                    answers = mod.resolve(q_name, q_type)                    
+                    answers = resolver['mod'].resolve(q_name, q_type)                    
                     for answer in answers:
                         d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], answer['TTL'], dnslib.QTYPE[answer['type']], answer['data'])))
 
                     success = True
-                    print('[{0}] - DNS query successful for \'{1}\'!'.format(k, q_name))
+                    print('[DNS Server]: {0}::{1} - query successful for \'{2}\'!'.format(resolver['name'], resolver['mod'].DOMAIN, q_name))
                 except Exception:
-                    print('[{0}] - An error occured for \'{1}\'!'.format(k, q_name))
+                    print('[DNS Server]: {0}::{1} - error occured for \'{2}\'!'.format(resolver['name'], resolver['mod'].DOMAIN, q_name))
 
                 if success:
                     break
@@ -57,7 +74,7 @@ class SpecialResolver:
 
 def update_resolver_ns():
     while True:
-        with open(settings.NAMESERVER_DATA, 'r') as f:
+        with open(settings.NAMES_DATA, 'r') as f:
             custom_ns = json.load(f)
 
         updates = False
@@ -89,32 +106,32 @@ def update_resolver_ns():
                     if update_r:
                         updates = True
                         data['answers'] = answers
-                        print('[Scheduler] - updated DNS records for resolver {0}'.format(domain))
+                        print('[Scheduler]: updated DNS records for resolver {0}'.format(domain))
 
                     success = True
                 except Exception:
-                    print('[{0}] - An error occured for \'{1}\'!'.format(k, domain))
+                    print('[Scheduler]: error occured at {0} for \'{1}\'!'.format(k, domain))
 
                 if success:
                     break
                 
         if updates:
-            with open(settings.NAMESERVER_DATA, 'w') as f:
+            with open(settings.NAMES_DATA, 'w') as f:
                 json.dump(custom_ns, f)
 
         time.sleep(300) # default ttl value for resolvers (5 min)
 
-print('Initializing System, Press Ctrl-C to exit.')
+print('DNS over HTTPS Server Proxy, Press Ctrl-C to exit.')
 settings.START_TIME = round(time.time(), 0)
 
-print('Starting DNS Proxy...')
-r = SpecialResolver()
-s = server.DNSServer(r, port=settings.LOCAL_PORT, address=settings.LOCAL_ADDR)
+print('[DNS Server]: starting...')
+dns_server = CustomDNSServer()
+s = server.DNSServer(dns_server, port=settings.LOCAL_PORT, address=settings.LOCAL_ADDR)
 s.start_thread()
 
-print('Scheduling resolver update...')
+print('[Scheduler]: starting...')
 update_resolver_t = threading.Thread(target=update_resolver_ns)
 update_resolver_t.start()
 
-print('Starting web service...')
-backend.start()
+print('[Backend]: starting...')
+backend.start(dns_server)
