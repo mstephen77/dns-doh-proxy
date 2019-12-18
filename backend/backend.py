@@ -4,8 +4,11 @@ import settings
 import time
 from dnslib import QTYPE
 from flask import Flask, abort, session, render_template, request, jsonify
+from flask.logging import default_handler
 
 app = Flask(__name__)
+app.logger.removeHandler(default_handler)
+
 resolver = None
 
 def create_custom_ns_entry(domain, records):
@@ -26,7 +29,7 @@ def create_custom_ns_entry(domain, records):
             answers.append({
                 'name': domain,
                 'type': record[1],
-                'TTL': 3600,
+                'TTL': 30,
                 'data': record[0]
             })
         except ipaddress.AddressValueError:
@@ -99,4 +102,4 @@ def api_domains_domain(domain):
 def start(_resolver, host='127.0.0.1', port=5000):
     global resolver
     resolver = _resolver
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, )

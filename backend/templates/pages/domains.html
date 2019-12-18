@@ -30,7 +30,7 @@
                                     <th>Domain</th>
                                     <th>Answer</th>
                                     <th data-searchable="false" data-sortable="false" class="text-center">Status</th>
-                                    <th data-searchable="false" data-sortable="false" class="text-center">Actions</th>
+                                    <th data-searchable="false" data-sortable="false" class="text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -59,7 +59,7 @@
                                                 <i class="fas fa-check text-success" data-toggle="tooltip" data-placement="right" title="This record is enabled and active."></i>
                                             </div>
                                         </td>
-                                        <td class="text-center align-middle">
+                                        <td class="text-right align-middle">
                                             {% if not ns['resolver'] and ns['locked'] %}
                                             <div>
                                                 <a href="javascript:;" class="btn btn-danger">

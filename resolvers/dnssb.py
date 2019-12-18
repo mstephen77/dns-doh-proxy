@@ -11,10 +11,12 @@ def resolve(name, type):
         })
     r.raise_for_status()
     query = r.json()
-    if query['Status'] == 0:
+    if query['Status'] == 0: #NOERROR
         if 'Answer'in query:
             return query['Answer']
         else:
             return []
+    elif query['Status'] == 3: #NXDOMAIN
+        return []
     else:
         raise Exception('DNS resolve error, got status: {0}'.format(query['Status']))
