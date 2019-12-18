@@ -6,7 +6,7 @@ from dnslib import QTYPE
 from flask import Flask, abort, session, render_template, request, jsonify
 
 app = Flask(__name__)
-server = None
+resolver = None
 
 def create_custom_ns_entry(domain, records):
     answers = []
@@ -52,9 +52,9 @@ def view_dashboard():
     })
 @app.route('/resolvers')
 def view_resolvers():
-    global server
+    global resolver
     return render_template('pages/resolvers.html', data={
-        'resolvers': server.resolvers,
+        'resolvers': resolver.resolvers,
     })
 @app.route('/domains', methods=['GET', 'POST'])
 def view_domains():
@@ -96,7 +96,7 @@ def api_domains_domain(domain):
 
     return jsonify(custom_ns[domain])
 
-def start(_server, host='127.0.0.1', port=5000):
-    global server
-    server = _server
+def start(_resolver, host='127.0.0.1', port=5000):
+    global resolver
+    resolver = _resolver
     app.run(host=host, port=port)

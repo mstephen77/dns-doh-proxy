@@ -7,7 +7,7 @@ import threading
 import settings
 from dnslib import server
 
-class CustomDNSServer:
+class CustomDNSResolver:
     def __init__(self):
         self.resolvers = []
 
@@ -125,13 +125,15 @@ print('DNS over HTTPS Server Proxy, Press Ctrl-C to exit.')
 settings.START_TIME = round(time.time(), 0)
 
 print('[DNS Server]: starting...')
-dns_server = CustomDNSServer()
-s = server.DNSServer(dns_server, port=settings.LOCAL_PORT, address=settings.LOCAL_ADDR)
-s.start_thread()
+r = CustomDNSResolver()
+for bind in settings.BINDS:
+    dns_server = 'server' in bind and bind['server'] or server.UDPServer
+    s = server.DNSServer(r, port=bind['port'], address=bind['addr'], server=dns_server)
+    s.start_thread()
 
 print('[Scheduler]: starting...')
 update_resolver_t = threading.Thread(target=update_resolver_ns)
 update_resolver_t.start()
 
 print('[Backend]: starting...')
-backend.start(dns_server)
+backend.start(r)

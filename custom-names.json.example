@@ -6,56 +6,74 @@
             {
                 "name": "dns.google.",
                 "type": 28,
-                "TTL": 10,
+                "TTL": 543,
                 "data": "2001:4860:4860::8844"
             },
             {
                 "name": "dns.google.",
                 "type": 28,
-                "TTL": 10,
+                "TTL": 543,
                 "data": "2001:4860:4860::8888"
             },
             {
                 "name": "dns.google.",
                 "type": 1,
-                "TTL": 220,
+                "TTL": 644,
                 "data": "8.8.4.4"
             },
             {
                 "name": "dns.google.",
                 "type": 1,
-                "TTL": 220,
+                "TTL": 644,
                 "data": "8.8.8.8"
             }
         ]
     },
-    "dns.quad9.net.": {
+    "dns10.quad9.net.": {
         "resolver": true,
         "locked": true,
         "answers": [
             {
-                "name": "dns.quad9.net.",
+                "name": "dns10.quad9.net.",
                 "type": 28,
-                "TTL": 594,
-                "data": "2620:fe::9"
+                "TTL": 1074,
+                "data": "2620:fe::10"
             },
             {
-                "name": "dns.quad9.net.",
+                "name": "dns10.quad9.net.",
                 "type": 28,
-                "TTL": 594,
-                "data": "2620:fe::fe"
+                "TTL": 1074,
+                "data": "2620:fe::fe:10"
             },
             {
-                "name": "dns.quad9.net.",
+                "name": "dns10.quad9.net.",
                 "type": 1,
-                "TTL": 928,
-                "data": "149.112.112.112"
+                "TTL": 1200,
+                "data": "9.9.9.10"
             },
             {
-                "name": "dns.quad9.net.",
+                "name": "dns10.quad9.net.",
                 "type": 1,
-                "TTL": 928,
-                "data": "9.9.9.9"
+                "TTL": 1200,
+                "data": "149.112.112.10"
+            }
+        ]
+    },
+    "doh.securedns.eu.": {
+        "resolver": true,
+        "locked": true,
+        "answers": [
+            {
+                "name": "doh.securedns.eu.",
+                "type": 28,
+                "TTL": 278,
+                "data": "2a03:b0c0:0:1010::e9a:3001"
+            },
+            {
+                "name": "doh.securedns.eu.",
+                "type": 1,
+                "TTL": 50,
+                "data": "146.185.167.43"
             }
         ]
     },
@@ -86,6 +104,48 @@
                 "type": 1,
                 "TTL": 175,
                 "data": "104.16.249.249"
+            }
+        ]
+    },
+    "doh.dns.sb.": {
+        "resolver": true,
+        "locked": true,
+        "answers": [
+            {
+                "name": "doh.dns.sb.",
+                "type": 5,
+                "TTL": 1280,
+                "data": "doh.dns.sb.cdn.cloudflare.net."
+            },
+            {
+                "name": "doh.dns.sb.cdn.cloudflare.net.",
+                "type": 28,
+                "TTL": 300,
+                "data": "2606:4700:30::681f:5a8a"
+            },
+            {
+                "name": "doh.dns.sb.cdn.cloudflare.net.",
+                "type": 28,
+                "TTL": 300,
+                "data": "2606:4700:30::681f:5b8a"
+            },
+            {
+                "name": "doh.dns.sb.",
+                "type": 5,
+                "TTL": 1281,
+                "data": "doh.dns.sb.cdn.cloudflare.net."
+            },
+            {
+                "name": "doh.dns.sb.cdn.cloudflare.net.",
+                "type": 1,
+                "TTL": 300,
+                "data": "104.31.90.138"
+            },
+            {
+                "name": "doh.dns.sb.cdn.cloudflare.net.",
+                "type": 1,
+                "TTL": 300,
+                "data": "104.31.91.138"
             }
         ]
     }

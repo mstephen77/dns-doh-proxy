@@ -3,6 +3,7 @@ import resolvers.google as google
 import resolvers.quad9 as quad9
 import resolvers.dnssb as dnssb
 import resolvers.securedns as securedns
+import dnslibext
 
 NAMES_DATA = 'custom-names.json'
 
@@ -17,8 +18,16 @@ RESOLVERS = {
     'securedns': securedns,
 }
 
-LOCAL_ADDR = 'localhost'
-LOCAL_PORT = 53
+BINDS = [
+    {
+        'addr': '0.0.0.0',
+        'port': 53,
+    }, {
+        'addr': '::',
+        'port': 53,
+        'server': dnslibext.UDPServerIPv6,
+    }
+]
 
 FALLBACK_DNS_ADDR = '8.8.8.8'
 FALLBACK_DNS_PORT = 53
