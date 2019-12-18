@@ -8,14 +8,18 @@
         <div class="col-12 mb-2">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="mb-2">Server Overview</h5>
-                    <hr />
+                    <h5 class="mb-0">Server Overview</h5>
                     <div>
-                        System uptime: 
+                        Uptime: 
                         {% if data['hours'] > 0 %} {{ data['hours'] }} hour{% if data['hours'] > 1 %}s{% endif %} and {% endif %}
                         {{ data['minutes'] }} minute{% if data['minutes'] > 1 %}s{% endif %}
                     </div>
+                    <hr />
                     <div>DNS queries answered: {{ data['dns_answered'] }}</div>
+                    <small class="d-block text-muted ml-1">Answer through DoH: {{ data['dns_answer_doh'] }}</small>
+                    <small class="d-block text-muted ml-1">Answer through cache: {{ data['dns_answer_cache'] }}</small>
+                    <small class="d-block text-muted ml-1">Custom answer: {{ data['dns_answer_custom'] }}</small>
+                    <small class="d-block text-muted ml-1">Miss (fallback): {{ data['dns_answer_fallback'] }}</small>
                 </div>
             </div>
         </div>

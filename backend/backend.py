@@ -51,7 +51,11 @@ def view_dashboard():
     return render_template('pages/dashboard.html', data={
         'hours': hours,
         'minutes': minutes % 60,
-        'dns_answered': settings.DNS_ANSWERED
+        'dns_answered': settings.DNS_ANSWERED,
+        'dns_answer_cache': settings.DNS_ANSWER_BY_CACHE,
+        'dns_answer_doh': settings.DNS_ANSWER_BY_DOH,
+        'dns_answer_custom': settings.DNS_ANSWER_FROM_CUSTOM,
+        'dns_answer_fallback': settings.DNS_FALLBACK,
     })
 @app.route('/resolvers')
 def view_resolvers():

@@ -55,12 +55,16 @@ class CustomDNSResolver:
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))
             
             settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
+            settings.DNS_ANSWER_FROM_CUSTOM = settings.DNS_ANSWER_FROM_CUSTOM + 1
             return d
         elif q_name in self.cache:
+            print('[DNS Server]: using cached record for query \'{0}\''.format(q_name))
+
             for answer in self.cache[q_name]:
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))
 
-            print('[DNS Server]: using cached query for \'{0}\''.format(q_name))
+            settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
+            settings.DNS_ANSWER_BY_CACHE = settings.DNS_ANSWER_BY_CACHE + 1
             return d
         else:
             success = False
@@ -82,6 +86,7 @@ class CustomDNSResolver:
 
             if success:
                 settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
+                settings.DNS_ANSWER_BY_CACHE = settings.DNS_ANSWER_BY_CACHE + 1
                 return d
             else:
                 print('[DNS Server]: using fallback DNS for query \'{0}\''.format(q_name))
@@ -89,6 +94,7 @@ class CustomDNSResolver:
                 for rr in a.rr:
                     d.add_answer(rr)
 
+                settings.DNS_FALLBACK = settings.DNS_FALLBACK + 1
                 return d
 
 print('[DNS Server]: starting...')

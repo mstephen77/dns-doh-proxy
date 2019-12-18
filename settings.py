@@ -9,6 +9,10 @@ NAMES_DATA = 'custom-names.json'
 
 START_TIME = 0
 DNS_ANSWERED = 0
+DNS_ANSWER_BY_CACHE = 0
+DNS_ANSWER_BY_DOH = 0
+DNS_ANSWER_FROM_CUSTOM = 0
+DNS_FALLBACK = 0
 
 RESOLVERS = {
     'cloudflare': cf,
