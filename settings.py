@@ -14,6 +14,8 @@ DNS_ANSWER_BY_DOH = 0
 DNS_ANSWER_FROM_CUSTOM = 0
 DNS_FALLBACK = 0
 
+ENABLE_DNS_CACHE = True
+
 RESOLVERS = {
     'cloudflare': cf,
     'google': google,

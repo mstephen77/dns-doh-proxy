@@ -24,13 +24,13 @@ class CustomDNSResolver:
             })
 
     def update_ttl(self, time_passed: int):
-        for cache in self.cache:
+        for k, cache in self.cache.items():
             if 'TTL' in cache:
                 cache['TTL'] = int(cache['TTL']) - time_passed
                 if cache['TTL'] <= 0:
-                    del cache
+                    del self.cache[k]
             else:
-                del cache
+                del self.cache[k]
 
     def rr_resolver(self):
         self.resolvers.sort(key=lambda x: x['count'])
@@ -57,7 +57,7 @@ class CustomDNSResolver:
             settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
             settings.DNS_ANSWER_FROM_CUSTOM = settings.DNS_ANSWER_FROM_CUSTOM + 1
             return d
-        elif q_name in self.cache:
+        elif settings.ENABLE_DNS_CACHE and q_name in self.cache:
             print('[DNS Server]: using cached record for query \'{0}\''.format(q_name))
 
             for answer in self.cache[q_name]:
@@ -72,7 +72,10 @@ class CustomDNSResolver:
                 resolver = self.rr_resolver()
                 try:
                     answers = resolver['mod'].resolve(q_name, q_type)
-                    self.cache[q_name] = answers
+    
+                    if settings.ENABLE_DNS_CACHE:
+                        self.cache[q_name] = answers
+    
                     for answer in answers:
                         d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))
 
@@ -86,7 +89,7 @@ class CustomDNSResolver:
 
             if success:
                 settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
-                settings.DNS_ANSWER_BY_CACHE = settings.DNS_ANSWER_BY_CACHE + 1
+                settings.DNS_ANSWER_BY_DOH = settings.DNS_ANSWER_BY_DOH + 1
                 return d
             else:
                 print('[DNS Server]: using fallback DNS for query \'{0}\''.format(q_name))
