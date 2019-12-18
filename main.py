@@ -57,10 +57,10 @@ class CustomDNSResolver:
             settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
             settings.DNS_ANSWER_FROM_CUSTOM = settings.DNS_ANSWER_FROM_CUSTOM + 1
             return d
-        elif settings.ENABLE_DNS_CACHE and q_name in self.cache:
+        elif settings.ENABLE_DNS_CACHE and q_name in self.cache and q_type in self.cache[q_name]:
             print('[DNS Server]: using cached record for query \'{0}\''.format(q_name))
 
-            for answer in self.cache[q_name]:
+            for answer in self.cache[q_name][q_type]:
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))
 
             settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
@@ -74,7 +74,9 @@ class CustomDNSResolver:
                     answers = resolver['mod'].resolve(q_name, q_type)
     
                     if settings.ENABLE_DNS_CACHE:
-                        self.cache[q_name] = answers
+                        if q_name not in self.cache:
+                            self.cache[q_name] = {}
+                        self.cache[q_name][q_type] = answers
     
                     for answer in answers:
                         d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))

@@ -28,7 +28,8 @@ BINDS = [
     {
         'addr': '0.0.0.0',
         'port': 53,
-    }, {
+    }, 
+    {
         'addr': '::',
         'port': 53,
         'server': dnslibext.UDPServerIPv6,

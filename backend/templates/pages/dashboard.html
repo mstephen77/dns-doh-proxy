@@ -9,11 +9,11 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="mb-0">Server Overview</h5>
-                    <div>
+                    <small class="d-block">
                         Uptime: 
                         {% if data['hours'] > 0 %} {{ data['hours'] }} hour{% if data['hours'] > 1 %}s{% endif %} and {% endif %}
                         {{ data['minutes'] }} minute{% if data['minutes'] > 1 %}s{% endif %}
-                    </div>
+                    </small>
                     <hr />
                     <div>DNS queries answered: {{ data['dns_answered'] }}</div>
                     <small class="d-block text-muted ml-1">Answer through DoH: {{ data['dns_answer_doh'] }}</small>
