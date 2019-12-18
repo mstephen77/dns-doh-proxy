@@ -1,8 +1,8 @@
 import requests
 import settings
 
-DOMAIN = 'doh.dns.sb'
-ENDPOINT = 'https://doh.dns.sb/dns-query'
+DOMAIN = 'doh.li'
+ENDPOINT = 'https://doh.li/dns-query'
 
 def resolve(name, type):
     r = requests.get(ENDPOINT, params={

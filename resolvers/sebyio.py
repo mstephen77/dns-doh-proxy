@@ -1,8 +1,8 @@
 import requests
 import settings
 
-DOMAIN = 'doh.dns.sb'
-ENDPOINT = 'https://doh.dns.sb/dns-query'
+DOMAIN = 'doh-2.seby.io'
+ENDPOINT = 'https://doh-2.seby.io/dns-query'
 
 def resolve(name, type):
     r = requests.get(ENDPOINT, params={
@@ -12,7 +12,7 @@ def resolve(name, type):
         }, timeout=settings.TIMEOUT)
     r.raise_for_status()
     query = r.json()
-    if query['Status'] == 0: #NOERROR
+    if query['Status'] == 0:
         if 'Answer'in query:
             return query['Answer']
         else:
