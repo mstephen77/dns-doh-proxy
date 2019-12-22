@@ -14,7 +14,7 @@ settings.START_TIME = round(time.time(), 0)
 class CustomDNSResolver:
     def __init__(self):
         self.resolvers = []
-
+        self.resolving = {}
         self.cache = {}
         self.custom_names = {}
 
@@ -95,20 +95,34 @@ class CustomDNSResolver:
     def rr_resolver(self):
         random.shuffle(self.resolvers)
         self.resolvers.sort(key=lambda x: x['count_query'])
-        self.resolvers[0]['count_query'] = self.resolvers[0]['count_query'] + 1
         return self.resolvers[0]
         
-    def fetch(self, q_name, q_type, log=True):
-        resolver = self.rr_resolver()
+    def fetch(self, q_name, q_type, resolver=None, log=True):
+        if not resolver:
+            resolver = self.rr_resolver()
+
+        if q_name not in self.resolving:
+            self.resolving[q_name] = {
+                'resolver': resolver,
+                'queries': [],
+            }
+        self.resolving[q_name]['queries'].append(q_type)
+
+        resolver['count_query'] = resolver['count_query'] + 1
+
         success = False
         answers = []
         try:
             answers = resolver['mod'].resolve(q_name, q_type)
 
-            if settings.ENABLE_DNS_CACHE:
+            if settings.ENABLE_DNS_CACHE and len(answers) > 0:
                 if q_name not in self.cache:
                     self.cache[q_name] = {}
                 self.cache[q_name][q_type] = answers
+
+            self.resolving[q_name]['queries'].remove(q_type)
+            if len(self.resolving[q_name]['queries']) <= 0:
+                del self.resolving[q_name]
 
             success = True
             if success: 
@@ -116,9 +130,13 @@ class CustomDNSResolver:
 
             if log:
                 print('[DNS Server]: {0}::{1} - {2} query successful for \'{3}\''.format(resolver['name'], resolver['mod'].DOMAIN, q_type, q_name))
-        except Exception:
+        except Exception as e:
             if log:
-                print('[DNS Server]: {0}::{1} - error occured for \'{3}\''.format(resolver['name'], resolver['mod'].DOMAIN, q_type, q_name))
+                print('[DNS Server]: {0}::{1} - error occured'.format(resolver['name'], resolver['mod'].DOMAIN))
+                print('              - query details:')
+                print('                - QNAME: {0}'.format(q_name))
+                print('                - QTYPE: {0}'.format(q_type))
+                print('              - error details: {0}'.format(str(e)))
 
         return (success, answers)
 
@@ -128,18 +146,22 @@ class CustomDNSResolver:
         q_type = str(dnslib.QTYPE[q.qtype])
         q_name = str(q.qname)
 
+        fetch_needed = False
+        fetch_resolver = None
+
         if q_name in self.custom_names:
             custom_name = self.custom_names[q_name]
             if 'resolver' not in custom_name or not custom_name['resolver']:
                 print('[DNS Server]: using custom record for {0} query \'{1}\''.format(q_type, q_name))
+            
+                settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
+                settings.DNS_ANSWER_FROM_CUSTOM = settings.DNS_ANSWER_FROM_CUSTOM + 1
 
             for answer in custom_name['answers']:
                 if dnslib.QTYPE[answer['type']] != q_type:
                     continue
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))
-            
-            settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
-            settings.DNS_ANSWER_FROM_CUSTOM = settings.DNS_ANSWER_FROM_CUSTOM + 1
+                
             return d
         elif settings.ENABLE_DNS_CACHE and q_name in self.cache and q_type in self.cache[q_name]:
             print('[DNS Server]: using cached record for {0} query \'{1}\''.format(q_type, q_name))
@@ -150,10 +172,36 @@ class CustomDNSResolver:
             settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
             settings.DNS_ANSWER_BY_CACHE = settings.DNS_ANSWER_BY_CACHE + 1
             return d
+        elif q_name in self.resolving:
+            resolving = self.resolving[q_name]
+
+            fetch_resolver = resolving['resolver']
+
+            if q_type not in resolving['queries'] or not settings.ENABLE_DNS_CACHE:
+                fetch_needed = True
+            else:
+                while q_name in self.resolving and q_type in resolving['queries']:
+                    pass
+
+                if q_name in self.cache and q_type in self.cache[q_name]:
+                    return self.resolve(request, handler)
+                else:
+                    fetch_needed = True
+            
         else:
+            fetch_needed = True
+
+
+        if fetch_needed:
             success = False
+            answers = []
+
             for i in range(len(self.resolvers)):
-                success, answers = self.fetch(q_name, q_type)
+                if fetch_resolver:
+                    success, answers = self.fetch(q_name, q_type, resolver=fetch_resolver)
+                else:
+                    success, answers = self.fetch(q_name, q_type)
+
                 if success:
                     for answer in answers:
                         d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))
