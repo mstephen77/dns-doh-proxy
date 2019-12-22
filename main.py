@@ -132,11 +132,11 @@ class CustomDNSResolver:
                 print('[DNS Server]: {0}::{1} - {2} query successful for \'{3}\''.format(resolver['name'], resolver['mod'].DOMAIN, q_type, q_name))
         except Exception as e:
             if log:
-                print('[DNS Server]: {0}::{1} - error occured'.format(resolver['name'], resolver['mod'].DOMAIN))
-                print('              - query details:')
-                print('                - QNAME: {0}'.format(q_name))
-                print('                - QTYPE: {0}'.format(q_type))
-                print('              - error details: {0}'.format(str(e)))
+                print('''[DNS Server]: {0}::{1} - error occured
+              - query details:
+                - QNAME: {2}
+                - QTYPE: {3}
+              - error details: {4}'''.format(resolver['name'], resolver['mod'].DOMAIN, q_name, q_type, str(e)))
 
         return (success, answers)
 
@@ -199,6 +199,7 @@ class CustomDNSResolver:
             for i in range(len(self.resolvers)):
                 if fetch_resolver:
                     success, answers = self.fetch(q_name, q_type, resolver=fetch_resolver)
+                    fetch_resolver = None
                 else:
                     success, answers = self.fetch(q_name, q_type)
 
