@@ -6,9 +6,12 @@ import requests
 import threading
 import settings
 import random
+import logging
 from dnslib import server
 
-print('DNS over HTTPS Server Proxy, Press Ctrl-C to exit.')
+logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+
+logging.info('DNS over HTTPS Server Proxy, Press Ctrl-C to exit.')
 settings.START_TIME = round(time.time(), 0)
 
 class CustomDNSResolver:
@@ -84,7 +87,7 @@ class CustomDNSResolver:
                             'locked': True,
                             'answers': answers
                         }
-                        print('[DNS Server]: updated DNS records for resolver \'{0}\''.format(domain))
+                        logging.info('[DNS Server]: updated DNS records for resolver \'%s\'', domain)
 
                     break
                 
@@ -129,14 +132,14 @@ class CustomDNSResolver:
                 resolver['count_answer'] = resolver['count_answer'] + 1
 
             if log:
-                print('[DNS Server]: {0}::{1} - {2} query successful for \'{3}\''.format(resolver['name'], resolver['mod'].DOMAIN, q_type, q_name))
+                logging.info('[DNS Server]: %s::%s - %s query successful for \'%s\'', resolver['name'], resolver['mod'].DOMAIN, q_type, q_name)
         except Exception as e:
             if log:
-                print('''[DNS Server]: {0}::{1} - error occured
+                logging.info('''[DNS Server]: %s::%s - error occured
               - query details:
-                - QNAME: {2}
-                - QTYPE: {3}
-              - error details: {4}'''.format(resolver['name'], resolver['mod'].DOMAIN, q_name, q_type, str(e)))
+                - QNAME: %s
+                - QTYPE: %s
+              - error details: %s''', resolver['name'], resolver['mod'].DOMAIN, q_name, q_type, str(e))
 
         return (success, answers)
 
@@ -152,7 +155,7 @@ class CustomDNSResolver:
         if q_name in self.custom_names:
             custom_name = self.custom_names[q_name]
             if 'resolver' not in custom_name or not custom_name['resolver']:
-                print('[DNS Server]: using custom record for {0} query \'{1}\''.format(q_type, q_name))
+                logging.info('[DNS Server]: using custom record for %s query \'%s\'', q_type, q_name)
             
                 settings.DNS_ANSWERED = settings.DNS_ANSWERED + 1
                 settings.DNS_ANSWER_FROM_CUSTOM = settings.DNS_ANSWER_FROM_CUSTOM + 1
@@ -164,7 +167,7 @@ class CustomDNSResolver:
                 
             return d
         elif settings.ENABLE_DNS_CACHE and q_name in self.cache and q_type in self.cache[q_name]:
-            print('[DNS Server]: using cached record for {0} query \'{1}\''.format(q_type, q_name))
+            logging.info('[DNS Server]: using cached record for %s query \'%s\'', q_type, q_name)
 
             for answer in self.cache[q_name][q_type]:
                 d.add_answer(*dnslib.RR.fromZone('{0} {1} {2} {3}'.format(answer['name'], 0, dnslib.QTYPE[answer['type']], answer['data'])))
@@ -217,14 +220,14 @@ class CustomDNSResolver:
             else:
                 settings.DNS_FALLBACK = settings.DNS_FALLBACK + 1
 
-                print('[DNS Server]: using fallback DNS for query \'{0}\''.format(q_name))
+                logging.info('[DNS Server]: using fallback DNS for query \'%s\'', q_name)
                 a = dnslib.DNSRecord.parse(dnslib.DNSRecord.question(q_name).send(settings.FALLBACK_DNS_ADDR, settings.FALLBACK_DNS_PORT))
                 for rr in a.rr:
                     d.add_answer(rr)
 
                 return d
 
-print('[DNS Server]: starting...')
+logging.info('[DNS Server]: starting...')
 r = CustomDNSResolver()
 for bind in settings.BINDS:
     dns_server = 'server' in bind and bind['server'] or server.UDPServer
@@ -238,9 +241,9 @@ def scheduler(resolver):
 
         time.sleep(300) # 5 minutes
 
-print('[Scheduler]: starting...')
+logging.info('[Scheduler]: starting...')
 scheduler_t = threading.Thread(target=scheduler, kwargs={'resolver': r})
 scheduler_t.start()
 
-print('[Backend]: starting...')
+logging.info('[Backend]: starting...')
 backend.start(r)
