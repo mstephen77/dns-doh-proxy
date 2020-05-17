@@ -26,10 +26,10 @@ RESOLVERS = {
     'google': google,
     'quad9': quad9,
     'dnssb': dnssb,
-    'securedns': securedns,
     'dohli': dohli,
     'hostux': hostux,
     'sebyio': sebyio,
+    # 'securedns': securedns,
 }
 
 BINDS = [

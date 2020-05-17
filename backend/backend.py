@@ -83,6 +83,8 @@ def view_domains():
 
         with open(settings.NAMES_DATA, 'w') as f:
             json.dump(custom_ns, f)
+        
+        resolver.load_custom_names()
 
     with open(settings.NAMES_DATA, 'r') as f:
         custom_ns = json.load(f)
@@ -102,6 +104,12 @@ def api_domains_domain(domain):
         domain = domain + '.'
 
     return jsonify(custom_ns[domain])
+@app.route('/dns-cache')
+def view_dns_cache():
+    global resolver
+    return render_template('pages/dns-cache.html', data={
+        'dns_cache': resolver.cache.items()
+    })
 
 def start(_resolver, host='127.0.0.1', port=5000):
     global resolver

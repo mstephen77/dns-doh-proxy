@@ -10,8 +10,12 @@ import logging
 from dnslib import server
 
 logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+logging.getLogger('werkzeug').setLevel(logging.CRITICAL)
 
 logging.info('DNS over HTTPS Server Proxy, Press Ctrl-C to exit.')
+
+adapter = requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100)
+
 settings.START_TIME = round(time.time(), 0)
 
 class CustomDNSResolver:
@@ -245,5 +249,13 @@ logging.info('[Scheduler]: starting...')
 scheduler_t = threading.Thread(target=scheduler, kwargs={'resolver': r})
 scheduler_t.start()
 
+def start_backend(resolver):
+    backend.start(resolver)
+
 logging.info('[Backend]: starting...')
-backend.start(r)
+backend_t = threading.Thread(target=start_backend, kwargs={'resolver': r})
+backend_t.start()
+
+scheduler_t.join()
+backend_t.join()
+s.stop()

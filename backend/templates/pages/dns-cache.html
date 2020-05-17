@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h5>DNS Cache</h5>
+        </div>
+    </div>
+    <div class="row mt-2 mb-3">
+        <div class="col-12">
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><strong>Management</strong></li>
+                    <li class="breadcrumb-item active">DNS Cache</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <button class="btn btn-danger w-100 mb-2"><i class="fas fa-trash-alt mr-2"></i>Flush cache</button>
+                    <hr />
+                    <div class="container-fluid">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Domain</th>
+                                    <th>QType</th>
+                                    <th data-searchable="false" data-sortable="false">Answer</th>
+                                    <th data-searchable="false" data-sortable="false" class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for k, cache in data['dns_cache'] %}
+                                    {% if 'A' in cache %}
+                                    <tr>
+                                        <td class="align-middle">{{ k }}</td>
+                                        <td class="align-middle">A</td>
+                                        <td class="align-middle">
+                                            <table class="w-100">
+                                                <tbody>
+                                                    {% for answer in cache['A'] %}
+                                                        <tr>
+                                                            <td class="border-0 align-middle">{{ answer['type'] }}</td>
+                                                            <td class="border-0 align-middle w-100">{{ answer['data'] }}</td>
+                                                            <td class="border-0 align-middle text-right">{{ answer['TTL'] }}s</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td class="text-right align-middle">
+                                            <div>
+                                                <a href="javascript:;" class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if 'AAAA' in cache %}
+                                        <tr>
+                                            <td class="align-middle">{{ k }}</td>
+                                            <td class="align-middle">AAAA</td>
+                                            <td class="align-middle">
+                                                <table class="w-100">
+                                                    <tbody>
+                                                        {% for answer in cache['AAAA'] %}
+                                                            <tr>
+                                                                <td class="border-0 align-middle">{{ answer['type'] }}</td>
+                                                                <td class="border-0 align-middle w-100">{{ answer['data'] }}</td>
+                                                                <td class="border-0 align-middle text-right">{{ answer['TTL'] }}s</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                            <td class="text-right align-middle">
+                                                <div>
+                                                    <a href="javascript:;" class="btn btn-danger">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block body_items %}
+{{ super() }}
+<script>
+    $(() => {
+        $('table').DataTable();
+    });
+</script>
+{% endblock %}
