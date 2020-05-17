@@ -5,6 +5,7 @@ import time
 from dnslib import QTYPE
 from flask import Flask, abort, session, render_template, request, jsonify
 from flask.logging import default_handler
+from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 app.logger.removeHandler(default_handler)
@@ -111,7 +112,9 @@ def view_dns_cache():
         'dns_cache': resolver.cache.items()
     })
 
-def start(_resolver, host='127.0.0.1', port=5000):
+def start(_resolver, host='0.0.0.0', port=5000):
     global resolver
     resolver = _resolver
-    app.run(host=host, port=port, )
+    # app.run(host=host, port=port, threaded=True)
+    http_server = WSGIServer((host, port), app)
+    http_server.serve_forever()

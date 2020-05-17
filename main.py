@@ -10,7 +10,7 @@ import logging
 from dnslib import server
 
 logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-logging.getLogger('werkzeug').setLevel(logging.CRITICAL)
+# logging.getLogger('werkzeug').setLevel(logging.CRITICAL)
 
 logging.info('DNS over HTTPS Server Proxy, Press Ctrl-C to exit.')
 
